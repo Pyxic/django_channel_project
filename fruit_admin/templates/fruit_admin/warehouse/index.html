@@ -1,0 +1,225 @@
+{% extends 'fruit_admin/base.html' %}
+
+{% block content %}
+    <section class="content">
+        <div class="card">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-xs-12 col-sm-6">
+                    <div class="row">
+                        {% for product in products %}
+                        <div class="col-xs-12 col-sm-6 text-center product-item">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <p><span class="product-name" data-id="{{ product.id }}">{{ product.name }}</span> - <span class="product-count">{{ product.productcount.quantity }}</span></p>
+                                        <div class="product-input">
+                                            <input type="number" class="form-control mb-1" placeholder="кол-во">
+                                        </div>
+                                        <div class="product-buttons row justify-content-around">
+                                            <div class="col">
+                                                <input type="button" class="btn btn-primary sell-btn" placeholder="First name" value="продать">
+                                            </div>
+                                            <div class="col">
+                                                <input type="button" class="btn btn-success buy-btn" placeholder="Last name" value="купить">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                        </div>
+                        {% endfor %}
+                    <div class="col-xs-12 col-sm-6 text-center cash-item">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <p style="color: forestgreen">Денег на счету <span id="cash-id" class="cash-value">{{ cash.sum }}</span> USD</p>
+                                        <div class="cash-input">
+                                            <input type="number" class="form-control mb-1" placeholder="кол-во">
+                                        </div>
+                                        <div class="product-buttons row justify-content-around">
+                                            <div class="col">
+                                                <input type="button" class="btn btn-primary add-money" value="добавить">
+                                            </div>
+                                            <div class="col">
+                                                <input type="button" class="btn btn-success get-money"value="снять">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                        </div>
+                    </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h1>История</h1>
+                            </div>
+                            <div class="card-body task-story">
+                                {% for log in logs %}
+                                    <p>{{ log.created }} - {{ log.status }}:
+                                    {% if log.status == 'SUCCESS' %}
+                                        {% if log.type == 'Приход' %}
+                                            Закупка {{ log.count }} {{ log.product.name }}. Потрачено средств: {% widthratio log.count 1 log.product.price %}
+                                        {% else %}
+                                            Продажа {{ log.count }} {{ log.product.name }}. Получено средств: {% widthratio log.count 1 log.product.price %}
+                                        {% endif %}
+                                    {% else %}
+                                        {% if log.type == 'Приход' %}
+                                            Закупка {{ log.count }} {{ log.product.name }}. Недостаточно средств.<br>Закупка отменена.
+                                        {% else %}
+                                            Продажа {{ log.count }} {{ log.product.name }}. Недостаточно ко-во товара.<br>Продажа отменена.                                        {% endif %}
+                                    {% endif %}
+                                    </p>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            <div class="row">
+                <div class="col-sm-6">
+                    <div id="chat-log" class="form-control" style="background-color: white">
+                        {% for message in chat_messages %}
+                            <div class="col-md-12 mt-3 mv-3">
+                               <p><strong>{{ message.user.username }}</strong>
+                               <p>{{ message.text }}</p>
+                            </div>
+                        {% endfor %}
+                    </div><br>
+                    <input id="chat-message-input" class="form-control" type="text" size="100"><br>
+                    <input id="chat-message-submit" class="btn btn-primary" type="button" value="Send">
+
+                </div>
+            </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}
+{% block script %}
+    <script>
+    $('.sell-btn').on('click', function(){
+        console.log("yes");
+        let product = $(this).parents('.product-item').find('.product-name');
+        let quantity = $(this).parents('.product-item').find('.product-input input').val();
+        console.log(quantity);
+        let product_id = product.attr("data-id");
+        $.ajax({
+                headers: { "X-CSRFToken": '{{ csrf_token }}' },
+                type: "POST",
+                url: "/admin/sell_product/"+product_id,
+                data: {'count': quantity},
+                processData: 'json/application',
+                success: function(response){
+                    console.log(response);
+                },
+                error: function (response){
+                    console.log(response);
+                }
+            });
+    });
+    $('.buy-btn').on('click', function(){
+        console.log("yes");
+        let product = $(this).parents('.product-item').find('.product-name');
+        let quantity = $(this).parents('.product-item').find('.product-input input').val();
+        console.log(quantity);
+        let product_id = product.attr("data-id");
+        $.ajax({
+                headers: { "X-CSRFToken": '{{ csrf_token }}' },
+                type: "POST",
+                url: "/admin/buy_product/"+product_id,
+                data: {'count': quantity},
+                processData: 'json/application',
+                success: function(response){
+                    console.log(response);
+                },
+                error: function (response){
+                    console.log(response);
+                }
+            });
+    });
+
+    $('.add-money').on('click', function(){
+        console.log("yes");
+        let amount = $(this).parents('.cash-item').find('.cash-input input').val();
+        console.log(amount);
+        $.ajax({
+                headers: { "X-CSRFToken": '{{ csrf_token }}' },
+                type: "POST",
+                url: "{% url 'add_cash' %}",
+                data: {'amount': amount},
+                processData: 'json/application',
+                success: function(response){
+                    console.log(response);
+                    $('.cash-value').text(response['cash']);
+                },
+                error: function (response){
+                    console.log(response);
+                }
+            });
+    });
+    const productCountConsumer = new WebSocket(
+        'ws://'+window.location.host+'/product_counts/'
+    );
+
+    productCountConsumer.onmessage = function (e){
+        const data = JSON.parse(e.data);
+        console.log(data);
+        let product_counts = $('.product-count');
+        console.log(product_counts);
+        let product = $('.product-name[data-id='+data['product']+']');
+        console.log(product.parent().find('.product-count').text(data['count']));
+        $('#cash-id').text(data['cash']);
+
+    }
+
+    const chatConsumer = new WebSocket(
+        'ws://'+window.location.host+'/chat/'
+    );
+
+    chatConsumer.onmessage = function (e){
+        const data = JSON.parse(e.data);
+        let chat = document.querySelector('#chat-log');
+        chat.insertAdjacentHTML(
+            'beforeend',
+            '<div class="col-md-12 mt-3 mv-3">\n'+
+            '<p><strong>'+data['message']['user']+'</strong></p>\n'+
+            '<p>'+data['message']['text']+'</p></div>'
+        );
+    }
+
+    document.querySelector('#chat-message-submit').onclick = function(e) {
+            const messageInputDom = document.querySelector('#chat-message-input');
+            const message = messageInputDom.value;
+            chatConsumer.send(JSON.stringify({
+                'message': message
+            }));
+            messageInputDom.value = '';
+        };
+
+
+    const jokesws = new WebSocket(
+      'ws://' + window.location.host + '/jokes/'
+    )
+    /**
+     * Добавляет шутку в начало содержимого элемента с идентификатором #jokes.
+     * @param {string} joke - Текст шутки.
+     */
+    const addJoke = (joke) => {
+      let chat = document.querySelector('#chat-log');
+        chat.insertAdjacentHTML(
+            'beforeend',
+            '<div class="col-md-12 mt-3 mv-3">\n'+
+            '<p><strong>'+joke['user']+'</strong></p>\n'+
+            '<p>'+joke['text']+'</p></div>'
+        );
+    }
+    // Событие срабатывает при получении сообщения от сервера.
+    jokesws.onmessage = (event) => {
+      const joke = JSON.parse(event.data);
+      console.log(joke);
+      addJoke(joke);
+    }
+    // Событие срабатывает при закрытии соединения.
+    jokesws.onclose = (event_) => {
+      console.error('Jokes socket closed')
+    }
+
+    </script>
+{% endblock %}
