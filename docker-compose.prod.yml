@@ -5,7 +5,7 @@ services:
     build:
       context: ./
       dockerfile: Dockerfile.prod
-    command: gunicorn fruit.asgi:application -w 2 -k uvicorn.workers.UvicornWorker
+    command: daphne fruit.asgi:application
     expose:
       - 8000
     volumes:
