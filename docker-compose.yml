@@ -15,7 +15,7 @@ services:
   celery:
     restart: always
     build: ./
-    command: celery -A fruit  worker -Q queue1 -l INFO
+    command: celery -A fruit  worker -Q queue1,queue2 -l INFO
     volumes:
       - .:/usr/src/app/
     env_file:

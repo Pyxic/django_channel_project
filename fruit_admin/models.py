@@ -11,6 +11,9 @@ class Product(models.Model):
     name = models.CharField("Название", max_length=100)
     price = models.IntegerField("Цена")
 
+    def __str__(self):
+        return self.name
+
 
 class Income(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='incomes')

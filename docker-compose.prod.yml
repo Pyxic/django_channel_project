@@ -1,0 +1,65 @@
+version: '3'
+
+services:
+  web:
+    build:
+      context: ./
+      dockerfile: Dockerfile.prod
+    command: gunicorn fruit.asgi:application -k uvicorn.workers.UvicornWorker
+    expose:
+      - 8000
+    volumes:
+      - static_volume:/home/app/web/static
+      - media_volume:/home/app/web/media
+    env_file:
+      - ./.env.prod
+    depends_on:
+      - db
+      - redis
+  db:
+    image: postgres:12.0-alpine
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    env_file:
+      - ./.env.prod.db
+  nginx:
+    build: ./nginx
+    ports:
+      - 80:80
+    volumes:
+      - static_volume:/home/app/web/static
+      - media_volume:/home/app/web/media
+    depends_on:
+      - web
+  celery:
+    restart: always
+    build:
+      context: ./
+      dockerfile: Dockerfile.prod
+    command: celery -A fruit  worker -Q queue1 -l INFO
+    volumes:
+      - .:/usr/src/app/
+    env_file:
+      - ./.env.prod
+    depends_on:
+      - web
+      - redis
+      - db
+  redis:
+    image: "redis:alpine"
+  celery-beat:
+    build:
+      context: ./
+      dockerfile: Dockerfile.prod
+    command: celery -A fruite beat -l info
+    volumes:
+      - .:/usr/src/app/
+    env_file:
+      - ./.env.prod
+    depends_on:
+      - redis
+
+volumes:
+  postgres_data:
+  static_volume:
+  media_volume:

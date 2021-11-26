@@ -14,10 +14,12 @@ def warehouse(request):
     cash = Cash.objects.first()
     logs = Income.objects.all().order_by('-created').select_related()[:20]
     chat_messages = ChatMessage.objects.all()[:40]
+    last_updates = Income.objects.filter(status='SUCCESS').order_by('-id')[:4]
     return render(request, 'fruit_admin/warehouse/index.html', {
         "products": products,
         "cash": cash, "logs": logs,
-        "chat_messages": chat_messages
+        "chat_messages": chat_messages,
+        "last_updates": last_updates,
     })
 
 

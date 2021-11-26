@@ -128,9 +128,10 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 
 STATIC_URL = '/static/'
-STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'static')
-]
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+# STATICFILES_DIRS = [
+#     os.path.join(BASE_DIR, 'static')
+# ]
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 # Default primary key field type
@@ -144,52 +145,59 @@ CELERY_BROKER_URL = "redis://redis:6379"
 CELERY_RESULT_BACKEND = "redis://redis:6379"
 CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
 CELERY_TASK_ROUTES = ([
-    ('fruit_admin.tasks.*', {'queue': 'queue1'}),
+    ('fruit_admin.tasks.buy_apples', {'queue': 'queue1'}),
+    ('fruit_admin.tasks.sell_apples', {'queue': 'queue1'}),
+    ('fruit_admin.tasks.update_stock', {'queue': 'queue2'}),
+    ('fruit_admin.tasks.get_updates', {'queue': 'queue2'}),
 ],)
 
 CELERY_BEAT_SCHEDULE = {
     'buy_apples': {
         'task': 'fruit_admin.tasks.buy_apples',
-        'schedule': 60,
+        'schedule': 6,
         # 'options': {'queue': 'queue1'}
     },
     'sell_apples': {
         'task': 'fruit_admin.tasks.sell_apples',
-        'schedule': 150,
+        'schedule': 15,
         # 'options': {'queue': 'queue1'}
     },
     'buy_bananas': {
         'task': 'fruit_admin.tasks.buy_bananas',
-        'schedule': 90,
+        'schedule': 9,
         # 'options': {'queue': 'queue1'}
     },
     'sell_bananas': {
         'task': 'fruit_admin.tasks.sell_apples',
-        'schedule': 120,
+        'schedule': 12,
         # 'options': {'queue': 'queue1'}
     },
     'buy_pineapples': {
         'task': 'fruit_admin.tasks.buy_pineapples',
-        'schedule': 120,
+        'schedule': 12,
         # 'options': {'queue': 'queue1'}
     },
     'sell_pineapples': {
         'task': 'fruit_admin.tasks.sell_pineapples',
-        'schedule': 90,
+        'schedule': 9,
         # 'options': {'queue': 'queue1'}
     },
     'buy_peaches': {
         'task': 'fruit_admin.tasks.buy_peaches',
-        'schedule': 150,
+        'schedule': 15,
         # 'options': {'queue': 'queue1'}
     },
     'sell_peaches': {
         'task': 'fruit_admin.tasks.sell_peaches',
-        'schedule': 60,
+        'schedule': 6,
         # 'options': {'queue': 'queue1'}
     },
     'get_random_joke': {
         'task': 'fruit_admin.tasks.get_random_joke',
+        'schedule': 10,
+    },
+    'get_updates': {
+        'task': 'fruit_admin.tasks.get_updates',
         'schedule': 10,
     }
 

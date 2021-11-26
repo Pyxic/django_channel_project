@@ -97,3 +97,54 @@ class JokesConsumer(WebsocketConsumer):
     def jokes_joke(self, event):
         # Отправляет сообщение по вебсокету
         self.send(text_data=json.dumps({"text": event['text'], "user": event['user']}))
+
+
+class StoryConsumer(WebsocketConsumer):
+
+    def connect(self):
+        # Подключает канал с именем `self.channel_name`
+        async_to_sync(self.channel_layer.group_add)(
+            "story", self.channel_name
+        )
+        # Принимает соединение
+        self.accept()
+
+    def disconnect(self, close_code):
+        # Отключает канал с именем `self.channel_name`
+        # от группы `jokes`
+        async_to_sync(self.channel_layer.group_discard)(
+            "story", self.channel_name
+        )
+
+    def update_story(self, event):
+        print(event)
+        # Отправляет сообщение по вебсокету
+        self.send(text_data=json.dumps({
+            "status": event['status'], 'type': event['type'], 'created': event['created'],
+            "count": event['count'], 'product': event['product'], 'price': event['price']
+        }))
+
+
+class LastUpdatesConsumer(WebsocketConsumer):
+
+    def connect(self):
+        # Подключает канал с именем `self.channel_name`
+        async_to_sync(self.channel_layer.group_add)(
+            "last_updates", self.channel_name
+        )
+        # Принимает соединение
+        self.accept()
+
+    def disconnect(self, close_code):
+        # Отключает канал с именем `self.channel_name`
+        # от группы `jokes`
+        async_to_sync(self.channel_layer.group_discard)(
+            "last_updates", self.channel_name
+        )
+
+    def update_last(self, event):
+        print(event)
+        # Отправляет сообщение по вебсокету
+        self.send(text_data=json.dumps({
+            "last_updates": event['last_updates'],
+        }))

@@ -45,6 +45,20 @@
                                     </div>
                                 </div>
                         </div>
+                    <div class="col-xs-12 col-sm-6 text-center">
+                        <div class="card">
+                            <div>
+                                <h2>Последние обновления</h2>
+                            </div>
+                                    <div class="card-body">
+                                    <div class="row" id="last-updates">
+                                        {% for log in last_updates%}
+                                            <div class="col-md-12">{{ log.type }} - {{ log.created }}</div>
+                                        {% endfor %}
+                                    </div>
+                                    </div>
+                        </div>
+                    </div>
                     </div>
                     </div>
                     <div class="col-xs-12 col-sm-6">
@@ -52,7 +66,7 @@
                             <div class="card-header">
                                 <h1>История</h1>
                             </div>
-                            <div class="card-body task-story">
+                            <div class="card-body task-story" id="task-story">
                                 {% for log in logs %}
                                     <p>{{ log.created }} - {{ log.status }}:
                                     {% if log.status == 'SUCCESS' %}
@@ -73,6 +87,11 @@
                         </div>
                     </div>
                 </div>
+            <div>
+                <div class="col-md-3">
+                    <input id="update-stock-btn" class="btn btn-primary" type="button" value="обновить склад">
+                </div>
+            </div>
             <div class="row">
                 <div class="col-sm-6">
                     <div id="chat-log" class="form-control" style="background-color: white">
@@ -162,11 +181,9 @@
         const data = JSON.parse(e.data);
         console.log(data);
         let product_counts = $('.product-count');
-        console.log(product_counts);
         let product = $('.product-name[data-id='+data['product']+']');
-        console.log(product.parent().find('.product-count').text(data['count']));
+        product.parent().find('.product-count').text(data['count']);
         $('#cash-id').text(data['cash']);
-
     }
 
     const chatConsumer = new WebSocket(
@@ -212,13 +229,63 @@
     }
     // Событие срабатывает при получении сообщения от сервера.
     jokesws.onmessage = (event) => {
-      const joke = JSON.parse(event.data);
-      console.log(joke);
+      const joke = JSON.parse(event.data)
       addJoke(joke);
     }
     // Событие срабатывает при закрытии соединения.
     jokesws.onclose = (event_) => {
       console.error('Jokes socket closed')
+    }
+
+    const storyConsumer = new WebSocket(
+        'ws://'+window.location.host+'/story/'
+    );
+
+    storyConsumer.onmessage = function (e){
+        const data = JSON.parse(e.data);
+        console.log(data);
+        let story = document.querySelector('#task-story');
+        let log = '';
+        if (data['status'] == 'SUCCESS'){
+            if (data['type'] == 'Приход') {
+                log = '<p>'+data['created']+' - '+data['status']+' Закупка ' + data['count'] + ' ' + data['product'] + '. Потрачено средств: ' +
+                    data['count'] * data['price']+'</p>';
+            }else{
+                log = '<p>'+data['created']+' - '+data['status']+' Продажа ' + data['count'] + ' ' + data['product'] + '. Получено средств: ' +
+                    data['count'] * data['price']+'</p>';
+            }
+        }else{
+            if (data['type'] == 'Приход') {
+                log = '<p>'+data['created']+' - '+data['status']+' Закупка ' + data['count'] + ' ' + data['product'] + "Недостаточно средств.<br>Закупка отменена</p>";
+            }else{
+                log = '<p>'+data['created']+' - '+data['status']+' Продажа ' + data['count'] + ' ' + data['product'] +
+                    '. Недостаточно кол-во товара.<br>Продажа отменена</p>';
+            }
+        }
+        story.insertAdjacentHTML(
+            'beforeend',
+            log
+        );
+    }
+
+     const lastUpdatesConsumer = new WebSocket(
+        'ws://'+window.location.host+'/last_updates/'
+    );
+
+    lastUpdatesConsumer.onmessage = function (e) {
+        const data = JSON.parse(e.data);
+        let last_updates = JSON.parse(data['last_updates']);
+        let parent_div = $('#last-updates');
+        parent_div.empty();
+        for (let i=0;i<last_updates.length;i++){
+            console.log(last_updates[i]);
+            let div = $('<div class="col-md-12">'+last_updates[i]['type']+' '+
+                last_updates[i]['product__name']+' - '+last_updates[i]['formatted_date']+'</div>');
+            parent_div.append(div);
+
+        }
+
+        let log = '';
     }
 
     </script>
