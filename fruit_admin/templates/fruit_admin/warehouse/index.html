@@ -174,7 +174,7 @@
             });
     });
     const productCountConsumer = new WebSocket(
-        'ws://'+window.location.host+'/product_counts/'
+        'ws://'+window.location.host+'/ws/product_counts/'
     );
 
     productCountConsumer.onmessage = function (e){
@@ -187,7 +187,7 @@
     }
 
     const chatConsumer = new WebSocket(
-        'ws://'+window.location.host+'/chat/'
+        'ws://'+window.location.host+'/ws/chat/'
     );
 
     chatConsumer.onmessage = function (e){
@@ -212,7 +212,7 @@
 
 
     const jokesws = new WebSocket(
-      'ws://' + window.location.host + '/jokes/'
+      'ws://' + window.location.host + '/ws/jokes/'
     )
     /**
      * Добавляет шутку в начало содержимого элемента с идентификатором #jokes.
@@ -238,7 +238,7 @@
     }
 
     const storyConsumer = new WebSocket(
-        'ws://'+window.location.host+'/story/'
+        'ws://'+window.location.host+'/ws/story/'
     );
 
     storyConsumer.onmessage = function (e){
@@ -269,7 +269,7 @@
     }
 
      const lastUpdatesConsumer = new WebSocket(
-        'ws://'+window.location.host+'/last_updates/'
+        'ws://'+window.location.host+'/ws/last_updates/'
     );
 
     lastUpdatesConsumer.onmessage = function (e) {

@@ -3,9 +3,9 @@ from django.urls import re_path
 from . import consumers
 
 websocket_urlpatterns = [
-    re_path(r'product_counts/', consumers.ProductCountConsumer.as_asgi()),
-    re_path(r'chat/', consumers.ChatConsumer.as_asgi()),
-    re_path(r'jokes/', consumers.JokesConsumer.as_asgi()),
-    re_path(r'story/', consumers.StoryConsumer.as_asgi()),
-    re_path(r'last_updates/', consumers.LastUpdatesConsumer.as_asgi()),
+    re_path(r'ws/product_counts/', consumers.ProductCountConsumer.as_asgi()),
+    re_path(r'ws/chat/', consumers.ChatConsumer.as_asgi()),
+    re_path(r'ws/jokes/', consumers.JokesConsumer.as_asgi()),
+    re_path(r'ws/story/', consumers.StoryConsumer.as_asgi()),
+    re_path(r'ws/last_updates/', consumers.LastUpdatesConsumer.as_asgi()),
 ]
