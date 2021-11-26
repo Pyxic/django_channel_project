@@ -146,6 +146,13 @@ CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
 CELERY_TASK_ROUTES = ([
     ('fruit_admin.tasks.buy_apples', {'queue': 'queue1'}),
     ('fruit_admin.tasks.sell_apples', {'queue': 'queue1'}),
+    ('fruit_admin.tasks.buy_bananas', {'queue': 'queue1'}),
+    ('fruit_admin.tasks.sell_bananas', {'queue': 'queue1'}),
+    ('fruit_admin.tasks.buy_pineapples', {'queue': 'queue1'}),
+    ('fruit_admin.tasks.sell_pineapples', {'queue': 'queue1'}),
+    ('fruit_admin.tasks.buy_peaches', {'queue': 'queue1'}),
+    ('fruit_admin.tasks.sell_peaches', {'queue': 'queue1'}),
+    ('fruit_admin.tasks.get_random_joke', {'queue': 'queue1'}),
     ('fruit_admin.tasks.update_stock', {'queue': 'queue2'}),
     ('fruit_admin.tasks.get_updates', {'queue': 'queue2'}),
 ],)
