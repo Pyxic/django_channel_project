@@ -51,7 +51,7 @@ services:
     build:
       context: ./
       dockerfile: Dockerfile.prod
-    command: celery -A fruite beat -l info
+    command: celery -A fruit beat -l info
     volumes:
       - .:/usr/src/app/
     env_file:
