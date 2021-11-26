@@ -32,15 +32,15 @@ ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS", '*').split(" ")
 
 INSTALLED_APPS = [
     # 'django.contrib.fruit_admin',
-    'fruit_admin.apps.FruitAdminConfig',
-    'account.apps.AccountConfig',
+    'channels',
+    'fruit_admin',
+    'account',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django_celery_beat',
-    'channels',
 ]
 
 MIDDLEWARE = [
