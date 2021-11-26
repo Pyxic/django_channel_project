@@ -6,7 +6,7 @@ services:
       context: ./
       dockerfile: Dockerfile.prod
     command: >
-        bash -c "gunicorn config.wsgi:application --bind 0.0.0.0:8000 --reload"
+        bash -c "gunicorn fruit.wsgi:application --bind 0.0.0.0:8000 --reload"
     expose:
       - 8000
     volumes:
