@@ -1,13 +1,29 @@
 version: '3'
 
 services:
-  web:
+  web_wsgi:
     build:
       context: ./
       dockerfile: Dockerfile.prod
-    command: gunicorn fruit.asgi:application -k uvicorn.workers.UvicornWorker
+    command: >
+        bash -c "gunicorn config.wsgi:application --bind 0.0.0.0:8000 --reload"
     expose:
       - 8000
+    volumes:
+      - static_volume:/home/app/web/static
+      - media_volume:/home/app/web/media
+    env_file:
+      - ./.env.prod
+    depends_on:
+      - db
+      - redis
+  web_asgi:
+    build:
+      context: ./
+      dockerfile: Dockerfile.prod
+    command: uvicorn fruit.asgi:application --host 0.0.0.0
+    expose:
+      - 9000
     volumes:
       - static_volume:/home/app/web/static
       - media_volume:/home/app/web/media
@@ -30,19 +46,21 @@ services:
       - static_volume:/home/app/web/static
       - media_volume:/home/app/web/media
     depends_on:
-      - web
+      - web_wsgi
+      - web_asgi
   celery:
     restart: always
     build:
       context: ./
       dockerfile: Dockerfile.prod
-    command: celery -A fruit  worker -Q queue1 -l INFO
+    command: celery -A fruit  worker -Q queue1,queue2 -l INFO
     volumes:
       - .:/usr/src/app/
     env_file:
       - ./.env.prod
     depends_on:
-      - web
+      - web_wsgi
+      - web_asgi
       - redis
       - db
   redis:
