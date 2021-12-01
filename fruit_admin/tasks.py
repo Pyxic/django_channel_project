@@ -307,7 +307,7 @@ def get_updates():
     last_updates = Income.objects.annotate(
         formatted_date=Func(
             F('created'),
-            Value('HH:mm'),
+            Value('hh:MM'),
             function='to_char',
             output_field=CharField()
         )
